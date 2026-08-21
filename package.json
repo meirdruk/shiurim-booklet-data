@@ -1,0 +1,12 @@
+{
+  "name": "shiurim-booklet-data",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled precompute for the Shiurim Booklet Maker: fetches the weekly bulletin PDF and runs it through shared/booklet-logic.js, writing docs/data.json for GitHub Pages to serve.",
+  "scripts": {
+    "compute": "node scripts/compute.mjs"
+  },
+  "dependencies": {
+    "pdfjs-dist": "3.11.174"
+  }
+}
