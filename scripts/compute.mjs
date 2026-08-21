@@ -59,7 +59,11 @@ function hayomYomMapToJson(map) {
 
 async function main() {
   console.log(`Fetching PDF from ${REMOTE_URL} ...`);
-  const res = await fetch(REMOTE_URL);
+  const headers = {};
+  if (process.env.COMPUTE_SECRET) {
+    headers['x-compute-secret'] = process.env.COMPUTE_SECRET;
+  }
+  const res = await fetch(REMOTE_URL, { headers });
   if (!res.ok) throw new Error(`Failed to fetch PDF: HTTP ${res.status}`);
   const pdfBytes = new Uint8Array(await res.arrayBuffer());
   console.log(`Downloaded ${pdfBytes.length} bytes.`);
