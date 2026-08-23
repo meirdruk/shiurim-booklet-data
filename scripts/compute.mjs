@@ -2,14 +2,6 @@
 /* ══════════════════════════════════════════════════════════
    scripts/compute.mjs
 
-   Fetches the PDF, runs it
-   through the exact same algorithm the browser tool uses
-   (../shared/booklet-logic.js), and writes the result — plus a SHA-256
-   hash of the source PDF bytes — to data.json at the repo root, which
-   GitHub Pages serves as a static file (Pages configured to serve from
-   the repo root, so shared/booklet-logic.js is reachable too, with no
-   need to duplicate it into a separate Pages-specific folder).
-
    CRITICAL: pdfjs-dist is pinned to the EXACT version the browser tool
    loads from cdnjs (3.11.174) — see package.json. Different pdf.js
    versions represent PDF internals (e.g. fill-color operator arguments)
@@ -43,8 +35,15 @@ const {
   buildHayomYomPageMap,
 } = await import('../shared/booklet-logic.js');
 
-// ----workers_dev url, as opposed to hamshachos_dev, for proper fetching ---
-const REMOTE_URL   = 'https://scrape-dm.meirdruk.workers.dev';
+// IMPORTANT: this is your Worker's default workers.dev URL, NOT the
+// scrape-dm.hamshachos.dev custom domain. Requests to workers.dev never
+// pass through the hamshachos.dev zone's proxy, so its Bot Fight Mode
+// setting doesn't apply here at all — this is a different security
+// boundary, not a bypass of the zone's rules.
+//
+// FILL IN: find this at Cloudflare dashboard → Workers & Pages →
+// scrape-dm → the URL shown on its overview page.
+const REMOTE_URL   = 'https://scrape-dm.<YOUR-ACCOUNT-SUBDOMAIN>.workers.dev';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
 const SCHEMA_VERSION = 1;
 
@@ -115,7 +114,6 @@ async function main() {
     schemaVersion: SCHEMA_VERSION,
     pdfHash,
     computedAt: new Date().toISOString(),
-    sourceUrl: REMOTE_URL,
     totalPages: S.totalPages,
     sections: S.sections,
     hayomYomPageMap: hayomYomMapToJson(S.hayomYomPageMap),
