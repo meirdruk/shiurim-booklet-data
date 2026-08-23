@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "pdfHash": "5471707d6d2439791029e92a93432e2f6b47f2e97b9f425df22cd51befbe2448",
-  "computedAt": "2026-08-23T05:42:04.783Z",
+  "pdfHash": "6580d7d3971dcf9efb2ada8912926224c9a3d0fa2075650eb8b07d8fcd975000",
+  "computedAt": "2026-08-23T07:19:20.682Z",
   "totalPages": 240,
   "sections": [
     {
@@ -41,7 +41,7 @@
       "id": 3,
       "title": "מאמרים",
       "startPage": 5,
-      "endPage": 17,
+      "endPage": 16,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -52,9 +52,9 @@
     },
     {
       "id": 4,
-      "title": "ד\"ה אני לדודי ודודי לי, ח\"י אלול ה'תשל\"ב",
+      "title": "ד\"ה משכני אחריך נרוצה, ה'תשל\"ה",
       "startPage": 5,
-      "endPage": 17,
+      "endPage": 16,
       "level": 1,
       "parentId": 3,
       "parentTitle": "מאמרים",
@@ -64,8 +64,8 @@
     {
       "id": 5,
       "title": "התוועדויות",
-      "startPage": 18,
-      "endPage": 25,
+      "startPage": 17,
+      "endPage": 24,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -77,9 +77,9 @@
     },
     {
       "id": 6,
-      "title": "ש\"פ תצא ה'תשכ\"ז",
-      "startPage": 18,
-      "endPage": 25,
+      "title": "ש\"פ תבוא ה'תשל\"ב",
+      "startPage": 17,
+      "endPage": 24,
       "level": 1,
       "parentId": 5,
       "parentTitle": "התוועדויות",
@@ -88,9 +88,9 @@
     },
     {
       "id": 7,
-      "title": "ש\"פ תצא ה'תשמ\"ט",
-      "startPage": 26,
-      "endPage": 34,
+      "title": "י\"ג אלול ה'תשמ\"ב",
+      "startPage": 25,
+      "endPage": 44,
       "level": 1,
       "parentId": 5,
       "parentTitle": "התוועדויות",
@@ -100,8 +100,8 @@
     {
       "id": 8,
       "title": "לקוטי שיחות",
-      "startPage": 35,
-      "endPage": 39,
+      "startPage": 45,
+      "endPage": 49,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -113,9 +113,9 @@
     },
     {
       "id": 9,
-      "title": "תצא, כרך כט, ג",
-      "startPage": 35,
-      "endPage": 39,
+      "title": "תבוא, כרך כט, ב",
+      "startPage": 45,
+      "endPage": 49,
       "level": 1,
       "parentId": 8,
       "parentTitle": "לקוטי שיחות",
@@ -124,9 +124,9 @@
     },
     {
       "id": 10,
-      "title": "תצא, כרך לד, א",
-      "startPage": 40,
-      "endPage": 44,
+      "title": "תבוא, כרך לד, א",
+      "startPage": 50,
+      "endPage": 55,
       "level": 1,
       "parentId": 8,
       "parentTitle": "לקוטי שיחות",
@@ -136,8 +136,8 @@
     {
       "id": 11,
       "title": "ילקוט לוי יצחק",
-      "startPage": 45,
-      "endPage": 46,
+      "startPage": 56,
+      "endPage": 56,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -147,8 +147,8 @@
     {
       "id": 12,
       "title": "נקודות משיחות קודש בעניני גאולה ומשיח",
-      "startPage": 47,
-      "endPage": 48,
+      "startPage": 57,
+      "endPage": 58,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -158,8 +158,8 @@
     {
       "id": 13,
       "title": "חומש יומי",
-      "startPage": 49,
-      "endPage": 50,
+      "startPage": 59,
+      "endPage": 61,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -177,8 +177,8 @@
     {
       "id": 14,
       "title": "יום ראשון",
-      "startPage": 49,
-      "endPage": 51,
+      "startPage": 59,
+      "endPage": 62,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -188,8 +188,8 @@
     {
       "id": 15,
       "title": "יום שני",
-      "startPage": 51,
-      "endPage": 53,
+      "startPage": 62,
+      "endPage": 63,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -199,8 +199,8 @@
     {
       "id": 16,
       "title": "יום שלישי",
-      "startPage": 53,
-      "endPage": 58,
+      "startPage": 64,
+      "endPage": 65,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -210,8 +210,8 @@
     {
       "id": 17,
       "title": "יום רביעי",
-      "startPage": 58,
-      "endPage": 61,
+      "startPage": 65,
+      "endPage": 67,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -221,8 +221,8 @@
     {
       "id": 18,
       "title": "יום חמישי",
-      "startPage": 61,
-      "endPage": 62,
+      "startPage": 67,
+      "endPage": 70,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -232,8 +232,8 @@
     {
       "id": 19,
       "title": "יום שישי",
-      "startPage": 63,
-      "endPage": 64,
+      "startPage": 70,
+      "endPage": 79,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -243,8 +243,8 @@
     {
       "id": 20,
       "title": "שבת קודש",
-      "startPage": 64,
-      "endPage": 69,
+      "startPage": 79,
+      "endPage": 81,
       "level": 1,
       "parentId": 13,
       "parentTitle": "חומש יומי",
@@ -254,8 +254,8 @@
     {
       "id": 21,
       "title": "תניא יומי",
-      "startPage": 71,
-      "endPage": 71,
+      "startPage": 83,
+      "endPage": 83,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -273,8 +273,8 @@
     {
       "id": 22,
       "title": "יום ראשון",
-      "startPage": 71,
-      "endPage": 72,
+      "startPage": 83,
+      "endPage": 84,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -284,8 +284,8 @@
     {
       "id": 23,
       "title": "יום שני",
-      "startPage": 72,
-      "endPage": 73,
+      "startPage": 84,
+      "endPage": 85,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -295,8 +295,8 @@
     {
       "id": 24,
       "title": "יום שלישי",
-      "startPage": 73,
-      "endPage": 74,
+      "startPage": 85,
+      "endPage": 86,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -306,8 +306,8 @@
     {
       "id": 25,
       "title": "יום רביעי",
-      "startPage": 74,
-      "endPage": 76,
+      "startPage": 86,
+      "endPage": 87,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -317,8 +317,8 @@
     {
       "id": 26,
       "title": "יום חמישי",
-      "startPage": 77,
-      "endPage": 78,
+      "startPage": 87,
+      "endPage": 89,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -328,8 +328,8 @@
     {
       "id": 27,
       "title": "יום שישי",
-      "startPage": 78,
-      "endPage": 79,
+      "startPage": 89,
+      "endPage": 91,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -339,8 +339,8 @@
     {
       "id": 28,
       "title": "שבת קודש",
-      "startPage": 80,
-      "endPage": 81,
+      "startPage": 91,
+      "endPage": 91,
       "level": 1,
       "parentId": 21,
       "parentTitle": "תניא יומי",
@@ -350,8 +350,8 @@
     {
       "id": 29,
       "title": "היום יום",
-      "startPage": 82,
-      "endPage": 82,
+      "startPage": 92,
+      "endPage": 92,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -369,8 +369,8 @@
     {
       "id": 37,
       "title": "הלכה יומית לעיון ברמב\"ם",
-      "startPage": 85,
-      "endPage": 88,
+      "startPage": 95,
+      "endPage": 98,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -380,8 +380,8 @@
     {
       "id": 38,
       "title": "רמב\"ם - שלושה פרקים ליום",
-      "startPage": 89,
-      "endPage": 95,
+      "startPage": 99,
+      "endPage": 106,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -399,8 +399,8 @@
     {
       "id": 39,
       "title": "יום ראשון",
-      "startPage": 89,
-      "endPage": 96,
+      "startPage": 99,
+      "endPage": 107,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -410,8 +410,8 @@
     {
       "id": 40,
       "title": "יום שני",
-      "startPage": 96,
-      "endPage": 103,
+      "startPage": 107,
+      "endPage": 113,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -421,8 +421,8 @@
     {
       "id": 41,
       "title": "יום שלישי",
-      "startPage": 103,
-      "endPage": 110,
+      "startPage": 113,
+      "endPage": 119,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -432,8 +432,8 @@
     {
       "id": 42,
       "title": "יום רביעי",
-      "startPage": 111,
-      "endPage": 118,
+      "startPage": 120,
+      "endPage": 127,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -443,8 +443,8 @@
     {
       "id": 43,
       "title": "יום חמישי",
-      "startPage": 118,
-      "endPage": 127,
+      "startPage": 127,
+      "endPage": 133,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -454,8 +454,8 @@
     {
       "id": 44,
       "title": "יום שישי",
-      "startPage": 127,
-      "endPage": 137,
+      "startPage": 133,
+      "endPage": 140,
       "level": 1,
       "parentId": 38,
       "parentTitle": "רמב\"ם - שלושה פרקים ליום",
@@ -465,7 +465,7 @@
     {
       "id": 45,
       "title": "שבת קודש",
-      "startPage": 137,
+      "startPage": 140,
       "endPage": 145,
       "level": 1,
       "parentId": 38,
@@ -477,7 +477,7 @@
       "id": 46,
       "title": "רמב\"ם - פרק אחד ליום",
       "startPage": 146,
-      "endPage": 150,
+      "endPage": 148,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -496,7 +496,7 @@
       "id": 47,
       "title": "יום ראשון",
       "startPage": 146,
-      "endPage": 150,
+      "endPage": 149,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -506,8 +506,8 @@
     {
       "id": 48,
       "title": "יום שני",
-      "startPage": 151,
-      "endPage": 153,
+      "startPage": 149,
+      "endPage": 151,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -517,8 +517,8 @@
     {
       "id": 49,
       "title": "יום שלישי",
-      "startPage": 153,
-      "endPage": 155,
+      "startPage": 151,
+      "endPage": 153,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -528,8 +528,8 @@
     {
       "id": 50,
       "title": "יום רביעי",
-      "startPage": 155,
-      "endPage": 157,
+      "startPage": 153,
+      "endPage": 155,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -539,8 +539,8 @@
     {
       "id": 51,
       "title": "יום חמישי",
-      "startPage": 157,
-      "endPage": 159,
+      "startPage": 156,
+      "endPage": 158,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -550,8 +550,8 @@
     {
       "id": 52,
       "title": "יום שישי",
-      "startPage": 159,
-      "endPage": 161,
+      "startPage": 158,
+      "endPage": 160,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -561,8 +561,8 @@
     {
       "id": 53,
       "title": "שבת קודש",
-      "startPage": 161,
-      "endPage": 161,
+      "startPage": 160,
+      "endPage": 163,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
@@ -646,8 +646,8 @@
     {
       "id": 60,
       "title": "יום שישי",
-      "startPage": 164,
-      "endPage": 164,
+      "startPage": 165,
+      "endPage": 165,
       "level": 1,
       "parentId": 54,
       "parentTitle": "רמב\"ם - ספר המצוות",
@@ -657,8 +657,8 @@
     {
       "id": 61,
       "title": "שבת קודש",
-      "startPage": 164,
-      "endPage": 164,
+      "startPage": 165,
+      "endPage": 165,
       "level": 1,
       "parentId": 54,
       "parentTitle": "רמב\"ם - ספר המצוות",
@@ -668,8 +668,8 @@
     {
       "id": 62,
       "title": "נביאים וכתובים",
-      "startPage": 165,
-      "endPage": 166,
+      "startPage": 166,
+      "endPage": 167,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -679,7 +679,7 @@
     {
       "id": 63,
       "title": "משניות",
-      "startPage": 167,
+      "startPage": 168,
       "endPage": 174,
       "level": 0,
       "parentId": null,
@@ -787,7 +787,7 @@
       "id": 72,
       "title": "שבת קודש",
       "startPage": 200,
-      "endPage": 205,
+      "endPage": 206,
       "level": 1,
       "parentId": 65,
       "parentTitle": "גמרא - מסכת חולין",
@@ -797,8 +797,8 @@
     {
       "id": 73,
       "title": "מתורת רבותינו נשיאי חב\"ד",
-      "startPage": 206,
-      "endPage": 207,
+      "startPage": 207,
+      "endPage": 208,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -820,8 +820,8 @@
     {
       "id": 74,
       "title": "שולחן ערוך עם הערות וציונים",
-      "startPage": 206,
-      "endPage": 207,
+      "startPage": 207,
+      "endPage": 208,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -831,8 +831,8 @@
     {
       "id": 75,
       "title": "שולחן ערוך לפי לוח 'רב יומי'",
-      "startPage": 208,
-      "endPage": 210,
+      "startPage": 209,
+      "endPage": 211,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -842,8 +842,8 @@
     {
       "id": 76,
       "title": "לקוטי תורה",
-      "startPage": 211,
-      "endPage": 216,
+      "startPage": 212,
+      "endPage": 215,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -853,8 +853,8 @@
     {
       "id": 77,
       "title": "תורת חיים",
-      "startPage": 217,
-      "endPage": 217,
+      "startPage": 216,
+      "endPage": 216,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -864,8 +864,8 @@
     {
       "id": 78,
       "title": "דרך מצותיך",
-      "startPage": 218,
-      "endPage": 219,
+      "startPage": 217,
+      "endPage": 217,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -875,8 +875,8 @@
     {
       "id": 79,
       "title": "תורת שמואל תרל\"ג",
-      "startPage": 220,
-      "endPage": 221,
+      "startPage": 218,
+      "endPage": 218,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -886,8 +886,8 @@
     {
       "id": 80,
       "title": "המשך תער\"ב",
-      "startPage": 220,
-      "endPage": 221,
+      "startPage": 219,
+      "endPage": 219,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -897,8 +897,8 @@
     {
       "id": 81,
       "title": "ספר המאמרים תרפ\"ט",
-      "startPage": 222,
-      "endPage": 223,
+      "startPage": 220,
+      "endPage": 220,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -908,8 +908,8 @@
     {
       "id": 82,
       "title": "לקוטי דיבורים",
-      "startPage": 222,
-      "endPage": 223,
+      "startPage": 221,
+      "endPage": 221,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -918,9 +918,9 @@
     },
     {
       "id": 83,
-      "title": "רשימות אדמו\"ר הריי\"צ",
-      "startPage": 224,
-      "endPage": 225,
+      "title": "רשימות - אבות החסידות",
+      "startPage": 222,
+      "endPage": 222,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -930,8 +930,8 @@
     {
       "id": 84,
       "title": "אגרות קודש",
-      "startPage": 226,
-      "endPage": 226,
+      "startPage": 223,
+      "endPage": 224,
       "level": 1,
       "parentId": 73,
       "parentTitle": "מתורת רבותינו נשיאי חב\"ד",
@@ -941,8 +941,8 @@
     {
       "id": 85,
       "title": "נקודה מעובדת משיחת קודש",
-      "startPage": 227,
-      "endPage": 227,
+      "startPage": 225,
+      "endPage": 225,
       "level": 0,
       "parentId": null,
       "parentTitle": null,
@@ -952,7 +952,7 @@
     {
       "id": 86,
       "title": "חומש לקריאה בציבור",
-      "startPage": 228,
+      "startPage": 226,
       "endPage": 235,
       "level": 0,
       "parentId": null,
@@ -976,7 +976,7 @@
     },
     {
       "id": 88,
-      "title": "פרק ב - בארץ הקודש",
+      "title": "פרק ג - בארץ הקודש ובכל העולם",
       "startPage": 236,
       "endPage": 236,
       "level": 1,
@@ -987,7 +987,7 @@
     },
     {
       "id": 89,
-      "title": "פרקים א-ב - בכל העולם",
+      "title": "פרק ד - בארץ הקודש ובכל העולם",
       "startPage": 237,
       "endPage": 237,
       "level": 1,
@@ -1032,8 +1032,8 @@
     {
       "id": 93,
       "title": "יום ראשון",
-      "startPage": 82,
-      "endPage": 82,
+      "startPage": 92,
+      "endPage": 92,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1043,8 +1043,8 @@
     {
       "id": 94,
       "title": "יום שני",
-      "startPage": 82,
-      "endPage": 82,
+      "startPage": 92,
+      "endPage": 93,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1054,8 +1054,8 @@
     {
       "id": 95,
       "title": "יום שלישי",
-      "startPage": 82,
-      "endPage": 82,
+      "startPage": 93,
+      "endPage": 93,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1065,8 +1065,8 @@
     {
       "id": 96,
       "title": "יום רביעי",
-      "startPage": 83,
-      "endPage": 83,
+      "startPage": 93,
+      "endPage": 93,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1076,8 +1076,8 @@
     {
       "id": 97,
       "title": "יום חמישי",
-      "startPage": 83,
-      "endPage": 83,
+      "startPage": 94,
+      "endPage": 94,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1087,8 +1087,8 @@
     {
       "id": 98,
       "title": "יום שישי",
-      "startPage": 83,
-      "endPage": 83,
+      "startPage": 94,
+      "endPage": 94,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1098,8 +1098,8 @@
     {
       "id": 99,
       "title": "שבת קודש",
-      "startPage": 84,
-      "endPage": 84,
+      "startPage": 94,
+      "endPage": 94,
       "level": 1,
       "parentId": 29,
       "parentTitle": "היום יום",
@@ -1109,25 +1109,26 @@
   ],
   "hayomYomPageMap": {
     "יום ראשון": [
-      82
+      92
     ],
     "יום שני": [
-      82
+      92,
+      93
     ],
     "יום שלישי": [
-      82
+      93
     ],
     "יום רביעי": [
-      83
+      93
     ],
     "יום חמישי": [
-      83
+      94
     ],
     "יום שישי": [
-      83
+      94
     ],
     "שבת קודש": [
-      84
+      94
     ]
   }
 }
