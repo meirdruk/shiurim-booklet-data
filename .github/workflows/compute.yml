@@ -6,7 +6,7 @@ on:
     # cache fresh well within an hour of the source PDF being replaced.
     # Adjust freely: e.g. tighten around your actual weekly publish
     # window and loosen the rest of the week, or leave as a flat interval.
-    - cron: '0 * * * *'
+    - cron: '0 * * * 0,1'
   workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
 
 permissions:
