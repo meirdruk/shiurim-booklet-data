@@ -1,8 +1,7 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "pdfHash": "5471707d6d2439791029e92a93432e2f6b47f2e97b9f425df22cd51befbe2448",
-  "computedAt": "2026-08-23T04:49:33.092Z",
-  "sourceUrl": "https://scrape-dm.meirdruk.workers.dev",
+  "computedAt": "2026-08-23T05:42:04.783Z",
   "totalPages": 240,
   "sections": [
     {
@@ -357,91 +356,14 @@
       "parentId": null,
       "parentTitle": null,
       "childIds": [
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99
       ],
-      "collapsed": false
-    },
-    {
-      "id": 30,
-      "title": "יום ראשון",
-      "startPage": 82,
-      "endPage": 82,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 31,
-      "title": "יום שני",
-      "startPage": 82,
-      "endPage": 82,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 32,
-      "title": "יום שלישי",
-      "startPage": 82,
-      "endPage": 82,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 33,
-      "title": "יום רביעי",
-      "startPage": 83,
-      "endPage": 83,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 34,
-      "title": "יום חמישי",
-      "startPage": 83,
-      "endPage": 83,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 35,
-      "title": "יום שישי",
-      "startPage": 83,
-      "endPage": 83,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
-      "collapsed": false
-    },
-    {
-      "id": 36,
-      "title": "שבת קודש",
-      "startPage": 84,
-      "endPage": 84,
-      "level": 1,
-      "parentId": 29,
-      "parentTitle": "היום יום",
-      "childIds": [],
       "collapsed": false
     },
     {
@@ -1104,6 +1026,83 @@
       "level": 0,
       "parentId": null,
       "parentTitle": null,
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 93,
+      "title": "יום ראשון",
+      "startPage": 82,
+      "endPage": 82,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 94,
+      "title": "יום שני",
+      "startPage": 82,
+      "endPage": 82,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 95,
+      "title": "יום שלישי",
+      "startPage": 82,
+      "endPage": 82,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 96,
+      "title": "יום רביעי",
+      "startPage": 83,
+      "endPage": 83,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 97,
+      "title": "יום חמישי",
+      "startPage": 83,
+      "endPage": 83,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 98,
+      "title": "יום שישי",
+      "startPage": 83,
+      "endPage": 83,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
+      "childIds": [],
+      "collapsed": false
+    },
+    {
+      "id": 99,
+      "title": "שבת קודש",
+      "startPage": 84,
+      "endPage": 84,
+      "level": 1,
+      "parentId": 29,
+      "parentTitle": "היום יום",
       "childIds": [],
       "collapsed": false
     }
