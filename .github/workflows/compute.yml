@@ -2,8 +2,7 @@ name: Compute booklet data
 
 on:
   schedule:
-    # Hourly by default — cheap (a few seconds per run) and keeps the
-    # cache fresh well within an hour of the source PDF being replaced.
+    # Hourly on sunday and monday - but it goes according to UTC - later than normal american time.
     # Adjust freely: e.g. tighten around your actual weekly publish
     # window and loosen the rest of the week, or leave as a flat interval.
     - cron: '0 * * * 0,1'
