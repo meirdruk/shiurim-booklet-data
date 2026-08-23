@@ -1,21 +1,6 @@
 /* ══════════════════════════════════════════════════════════
    booklet-logic.mjs
 
-   The pure PDF-analysis algorithm from the Shiurim Booklet Maker,
-   extracted so it can run identically in two places:
-     1. The browser (imported via dynamic import() as a fallback, when
-        no precomputed result is available or usable)
-     2. A Node.js script (the GitHub Action that precomputes results
-        on a schedule and commits them to data.json)
-
-   IMPORTANT — every function body here is a byte-for-byte copy of the
-   logic from the original single-file HTML tool. The ONLY mechanical
-   change made during extraction was: functions that used to close over
-   a module-scoped global `S` object now take `S` as an explicit first
-   parameter instead (and the small number of internal calls between
-   these functions were updated to pass `S` along). No rule, threshold,
-   constant, or control-flow decision was altered.
-
    AMBIENT DEPENDENCY: this module assumes a global `pdfjsLib` exists
    (used by gbGetFilledRects for `pdfjsLib.OPS`). This mirrors how the
    original HTML tool already loads pdf.js as a classic global script
