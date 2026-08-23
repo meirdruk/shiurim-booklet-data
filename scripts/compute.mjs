@@ -33,6 +33,7 @@ const {
   extractOutline,
   calculateEndPages,
   buildHayomYomPageMap,
+  synthesizeHayomYomChildren,
 } = await import('../shared/booklet-logic.js');
 
 // IMPORTANT: this is your Worker's default workers.dev URL, NOT the
@@ -109,6 +110,7 @@ async function main() {
   await calculateEndPages(S);
   console.log('Scanning היום יום gray-box page map...');
   await buildHayomYomPageMap(S);
+  synthesizeHayomYomChildren(S);
 
   const output = {
     schemaVersion: SCHEMA_VERSION,
