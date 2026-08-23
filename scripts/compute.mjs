@@ -2,9 +2,9 @@
 /* ══════════════════════════════════════════════════════════
    scripts/compute.mjs
 
-   Fetches the current weekly bulletin PDF from REMOTE_URL, runs it
-   through the exact same algorithm the browser tool uses
-   (../shared/booklet-logic.js), and writes the result — plus a SHA-256
+   Fetches the current weekly bulletin PDF directly from its source site
+   (dvarmalchus.com — see fetchCurrentPdf below), runs it
+   through the algorythm, and writes the result — plus a SHA-256
    hash of the source PDF bytes — to data.json at the repo root, which
    GitHub Pages serves as a static file (Pages configured to serve from
    the repo root, so shared/booklet-logic.js is reachable too, with no
@@ -43,9 +43,15 @@ const {
   buildHayomYomPageMap,
 } = await import('../shared/booklet-logic.js');
 
-const REMOTE_URL   = 'https://scrape-dm.hamshachos.dev';
+const SOURCE_PAGE_URL = 'https://dvarmalchus.com/Download.aspx?History=True';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
 const SCHEMA_VERSION = 1;
+
+// Mirrors the headers used by the scrape-dm Cloudflare Worker.
+const SCRAPE_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+};
 
 // hayomYomPageMap's values are Sets in-memory (see booklet-logic.js) — not
 // directly JSON-serializable. Convert to sorted plain arrays for output.
@@ -57,15 +63,57 @@ function hayomYomMapToJson(map) {
   return out;
 }
 
-async function main() {
-  console.log(`Fetching PDF from ${REMOTE_URL} ...`);
-  const headers = {};
-  if (process.env.COMPUTE_SECRET) {
-    headers['x-compute-secret'] = process.env.COMPUTE_SECRET;
+/* ══════════════════════════════════════════════════════════
+   Fetch the current weekly PDF directly from the source site.
+
+   NOTE ON DUPLICATION: this replicates the scrape-dm Cloudflare Worker's
+   own logic (fetch the listing page, regex out today's PDF link, fetch
+   that PDF with a Referer header) rather than calling the Worker itself.
+   This is deliberate — GitHub Actions runners get blocked by Cloudflare
+   Bot Fight Mode on the Worker's own domain, with no clean bypass
+   available at the current Cloudflare plan tier. Going straight to the
+   source avoids that hop entirely.
+
+   This DOES mean the scraping logic now lives in two places (the Worker
+   and here). If dvarmalchus.com's page structure ever changes, both need
+   updating — acceptable here since this routine is small and
+   self-contained, unlike the shared booklet-analysis algorithm.
+══════════════════════════════════════════════════════════ */
+async function fetchCurrentPdf() {
+  console.log(`Fetching listing page from ${SOURCE_PAGE_URL} ...`);
+  const pageResponse = await fetch(SOURCE_PAGE_URL, { headers: SCRAPE_HEADERS });
+  if (!pageResponse.ok) {
+    throw new Error(`Failed to fetch listing page: HTTP ${pageResponse.status}`);
   }
-  const res = await fetch(REMOTE_URL, { headers });
-  if (!res.ok) throw new Error(`Failed to fetch PDF: HTTP ${res.status}`);
-  const pdfBytes = new Uint8Array(await res.arrayBuffer());
+  const html = await pageResponse.text();
+
+  const linkMatch =
+    html.match(/href="(Download\/[^"]*\.pdf)"/i) ||
+    html.match(/href="([^"]*Download\.aspx\?ID=[^"]*)"/i);
+
+  if (!linkMatch || !linkMatch[1]) {
+    console.log('Match failed. Page starts with:', html.substring(0, 200));
+    throw new Error('Could not find the PDF link in the source page.');
+  }
+
+  let fileUrl = linkMatch[1];
+  if (!fileUrl.startsWith('http')) {
+    fileUrl = new URL(fileUrl, SOURCE_PAGE_URL).href;
+  }
+
+  console.log(`Fetching PDF from ${fileUrl} ...`);
+  const fileResponse = await fetch(fileUrl, {
+    headers: { ...SCRAPE_HEADERS, Referer: SOURCE_PAGE_URL },
+  });
+  if (!fileResponse.ok) {
+    throw new Error(`Failed to fetch PDF: HTTP ${fileResponse.status}`);
+  }
+
+  return new Uint8Array(await fileResponse.arrayBuffer());
+}
+
+async function main() {
+  const pdfBytes = await fetchCurrentPdf();
   console.log(`Downloaded ${pdfBytes.length} bytes.`);
 
   const pdfHash = crypto.createHash('sha256').update(pdfBytes).digest('hex');
@@ -107,7 +155,7 @@ async function main() {
     schemaVersion: SCHEMA_VERSION,
     pdfHash,
     computedAt: new Date().toISOString(),
-    sourceUrl: REMOTE_URL,
+    sourceUrl: SOURCE_PAGE_URL,
     totalPages: S.totalPages,
     sections: S.sections,
     hayomYomPageMap: hayomYomMapToJson(S.hayomYomPageMap),
