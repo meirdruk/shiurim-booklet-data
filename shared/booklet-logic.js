@@ -1,6 +1,10 @@
 /* ══════════════════════════════════════════════════════════
    booklet-logic.mjs
-
+   
+   **
+HI PEOPLE! why are you here bichlal??
+   **
+   
    AMBIENT DEPENDENCY: this module assumes a global `pdfjsLib` exists
    (used by gbGetFilledRects for `pdfjsLib.OPS`). This mirrors how the
    original HTML tool already loads pdf.js as a classic global script
@@ -482,4 +486,70 @@ export async function buildHayomYomPageMap(S) {
   console.log('[היום יום page map]', Object.fromEntries(
     Object.entries(S.hayomYomPageMap).map(([k,v]) => [k, [...v]])
   ));
+}
+
+/* ══════════════════════════════════════════════════════════
+   Synthesize per-day child sections under היום יום
+
+   The source PDF's own bookmarks never split היום יום by day — that
+   split only ever comes from the gray-box day-page scan
+   (buildHayomYomPageMap). This turns that scan's result into real child
+   sections in S.sections, so the Advanced tab can select an individual
+   day the same way it can for any other section — using the SAME
+   accurate, page-map-derived ranges the Basic tab already relies on —
+   instead of either having no such nodes at all, or (if some future
+   version of the source PDF ever adds its own bookmarks here) potentially
+   inaccurate bookmark-derived ranges for those days.
+
+   Any pre-existing children of היום יום — whether none, real bookmark
+   children from the PDF, or a leftover synthesis from an earlier run —
+   are replaced entirely. The page map is treated as the sole source of
+   truth for this specific section; a bookmark-derived range for a day
+   would have no way to know the correct boundary the way the gray-box
+   scan does.
+
+   MUST run AFTER both calculateEndPages() and buildHayomYomPageMap():
+   it needs the finished page map, and the synthetic entries it creates
+   must not be reprocessed by the generic end-page rules (they're not
+   children of any KNOWN_DAY_PARENTS name, so they wouldn't be, but this
+   ordering also just avoids doing the work before the data exists).
+
+   Each day's pages are assumed contiguous (start = min page, end = max
+   page) — true by construction, since buildHayomYomPageMap assigns every
+   page in its scanned range to exactly one day, in page order, so a
+   single day's pages can't have a gap in normal operation.
+══════════════════════════════════════════════════════════ */
+export function synthesizeHayomYomChildren(S) {
+  const hayomYom = S.sections.find(s => s.title === 'היום יום' || s.title.includes('היום יום'));
+  if (!hayomYom || !hayomYom.startPage) return;
+
+  const oldChildIds = new Set(hayomYom.childIds);
+  S.sections = S.sections.filter(s => !oldChildIds.has(s.id));
+  hayomYom.childIds = [];
+
+  let nextId = S.sections.reduce((max, s) => Math.max(max, s.id), -1) + 1;
+
+  const dayEntries = Object.entries(S.hayomYomPageMap)
+    .map(([title, pages]) => {
+      const sorted = [...pages].sort((a, b) => a - b);
+      return { title, startPage: sorted[0], endPage: sorted[sorted.length - 1] };
+    })
+    .filter(e => e.startPage !== undefined)
+    .sort((a, b) => a.startPage - b.startPage); // document order, not weekday order
+
+  for (const entry of dayEntries) {
+    const child = {
+      id: nextId++,
+      title: entry.title,
+      startPage: entry.startPage,
+      endPage: entry.endPage,
+      level: hayomYom.level + 1,
+      parentId: hayomYom.id,
+      parentTitle: hayomYom.title,
+      childIds: [],
+      collapsed: false,
+    };
+    S.sections.push(child);
+    hayomYom.childIds.push(child.id);
+  }
 }
