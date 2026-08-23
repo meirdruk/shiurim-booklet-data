@@ -36,10 +36,19 @@ const {
   synthesizeHayomYomChildren,
 } = await import('../shared/booklet-logic.js');
 
-// workers_dev link as opposed to hamshachos_dev link - bedavke
+// IMPORTANT: this is your Worker's default workers.dev URL, NOT the
+// scrape-dm.hamshachos.dev custom domain. Requests to workers.dev never
+// pass through the hamshachos.dev zone's proxy, so its Bot Fight Mode
+// setting doesn't apply here at all — this is a different security
+// boundary, not a bypass of the zone's rules.
+//
+// FILL IN: find this at Cloudflare dashboard → Workers & Pages →
+// scrape-dm → the URL shown on its overview page.
 const REMOTE_URL   = 'https://scrape-dm.meirdruk.workers.dev';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
-const SCHEMA_VERSION = 1;
+// Bump this whenever compute.mjs's output shape or algorithm changes —
+// see the skip-check below for why this matters, not just cosmetics.
+const SCHEMA_VERSION = 2;
 
 // hayomYomPageMap's values are Sets in-memory (see booklet-logic.js) — not
 // directly JSON-serializable. Convert to sorted plain arrays for output.
@@ -53,9 +62,7 @@ function hayomYomMapToJson(map) {
 
 async function fetchCurrentPdf() {
   console.log(`Fetching PDF from ${REMOTE_URL} ...`);
-  // COMPUTE_SECRET / X-Compute-Secret is left in as harmless defense in
-  // depth (see the earlier WAF custom rule) — it shouldn't be strictly
-  // necessary via workers.dev, but doesn't hurt to keep sending it.
+  // COMPUTE_SECRET / X-Compute-Secret is left here from before, even though its currently useless.
   const headers = {};
   if (process.env.COMPUTE_SECRET) {
     headers['X-Compute-Secret'] = process.env.COMPUTE_SECRET;
@@ -71,16 +78,21 @@ async function main() {
 
   const pdfHash = crypto.createHash('sha256').update(pdfBytes).digest('hex');
 
-  // Skip all the expensive work entirely if the PDF hasn't changed since
-  // the last successful run — avoids a wall of no-op commits.
+  // Skip all the expensive work entirely if the PDF hasn't changed AND
+  // the compute logic itself hasn't changed since the last successful run.
+  // Checking pdfHash alone isn't enough — if we edit this script's own
+  // algorithm/output shape but the source PDF stays the same, a hash-only
+  // check would see "unchanged" and skip forever, silently keeping a
+  // stale-format data.json live indefinitely. schemaVersion must be
+  // bumped by hand whenever the algorithm or output shape changes.
   let existing = null;
   try {
     existing = JSON.parse(await fs.readFile(OUTPUT_PATH, 'utf8'));
   } catch (_) {
     // No existing file yet (first run), or it's unreadable — proceed.
   }
-  if (existing && existing.pdfHash === pdfHash) {
-    console.log('PDF unchanged since last run (hash match) — nothing to do.');
+  if (existing && existing.pdfHash === pdfHash && existing.schemaVersion === SCHEMA_VERSION) {
+    console.log('PDF unchanged and schema version matches — nothing to do.');
     return;
   }
 
