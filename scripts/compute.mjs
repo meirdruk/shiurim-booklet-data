@@ -36,15 +36,8 @@ const {
   synthesizeHayomYomChildren,
 } = await import('../shared/booklet-logic.js');
 
-// IMPORTANT: this is your Worker's default workers.dev URL, NOT the
-// scrape-dm.hamshachos.dev custom domain. Requests to workers.dev never
-// pass through the hamshachos.dev zone's proxy, so its Bot Fight Mode
-// setting doesn't apply here at all — this is a different security
-// boundary, not a bypass of the zone's rules.
-//
-// FILL IN: find this at Cloudflare dashboard → Workers & Pages →
-// scrape-dm → the URL shown on its overview page.
-const REMOTE_URL   = 'https://scrape-dm.<YOUR-ACCOUNT-SUBDOMAIN>.workers.dev';
+// workers_dev link as opposed to hamshachos_dev link - bedavke
+const REMOTE_URL   = 'https://scrape-dm.meirdruk.workers.dev';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
 const SCHEMA_VERSION = 1;
 
