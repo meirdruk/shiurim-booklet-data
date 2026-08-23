@@ -1,10 +1,8 @@
 /* ══════════════════════════════════════════════════════════
    booklet-logic.mjs
-   
-   **
-HI PEOPLE! why are you here bichlal??
-   **
-   
+
+****  HI PEOPLE! ... why are you here bichlal??
+
    AMBIENT DEPENDENCY: this module assumes a global `pdfjsLib` exists
    (used by gbGetFilledRects for `pdfjsLib.OPS`). This mirrors how the
    original HTML tool already loads pdf.js as a classic global script
