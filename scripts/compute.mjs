@@ -2,12 +2,12 @@
 /* ══════════════════════════════════════════════════════════
    scripts/compute.mjs
 
-   CRITICAL: pdfjs-dist is pinned to the EXACT version the browser tool
-   loads from cdnjs (3.11.174) — see package.json. Different pdf.js
-   versions represent PDF internals (e.g. fill-color operator arguments)
-   differently, which silently breaks the gray-box detection this
-   algorithm depends on with no visible error. Do not let this version
-   float — see the README for details on why.
+   Fetches the current weekly PDF, runs it through shared/booklet-logic.js,
+   and writes data.json at the repo root for GitHub Pages to serve.
+
+   pdfjs-dist is pinned to the exact version the browser tool loads
+   (see package.json) — different versions represent PDF internals
+   differently, which silently breaks gray-box detection.
 ══════════════════════════════════════════════════════════ */
 
 import fs from 'node:fs/promises';
@@ -17,32 +17,30 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// pdf.js 3.11.174's legacy CJS build doesn't expose all named exports
-// through Node's ESM/CJS interop (cjs-module-lexer static analysis misses
-// some of them) — access everything through the default export instead.
+// This pdf.js build's named exports aren't all visible through Node's
+// CJS interop — go through the default export.
 const pdfjsMod = await import('pdfjs-dist/legacy/build/pdf.js');
 const pdfjsLib = pdfjsMod.default ?? pdfjsMod;
 
-// Ambient dependency expected by booklet-logic.js's gray-box engine
-// (gbGetFilledRects reads pdfjsLib.OPS). In the browser this is already
-// global via the existing <script src="cdnjs.../pdf.min.js"> tag; here we
-// set it explicitly before importing the shared module.
+// booklet-logic.js expects a global pdfjsLib (for pdfjsLib.OPS).
 globalThis.pdfjsLib = pdfjsLib;
 
 const {
   extractOutline,
+  correctDaySectionStartPages,
   calculateEndPages,
   buildHayomYomPageMap,
   synthesizeHayomYomChildren,
 } = await import('../shared/booklet-logic.js');
 
+
 const REMOTE_URL   = 'https://scrape-dm.meirdruk.workers.dev';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
-// Bump this when making changes
-const SCHEMA_VERSION = 3;
+// Bump whenever the output shape or algorithm changes — the skip-check
+// below relies on it.
+const SCHEMA_VERSION = 4;
 
-// hayomYomPageMap's values are Sets in-memory (see booklet-logic.js) — not
-// directly JSON-serializable. Convert to sorted plain arrays for output.
+// hayomYomPageMap holds Sets in memory; convert to sorted arrays.
 function hayomYomMapToJson(map) {
   const out = {};
   for (const [day, pages] of Object.entries(map)) {
@@ -53,7 +51,6 @@ function hayomYomMapToJson(map) {
 
 async function fetchCurrentPdf() {
   console.log(`Fetching PDF from ${REMOTE_URL} ...`);
-  // COMPUTE_SECRET / X-Compute-Secret is left here from before, even though its currently useless.
   const headers = {};
   if (process.env.COMPUTE_SECRET) {
     headers['X-Compute-Secret'] = process.env.COMPUTE_SECRET;
@@ -69,8 +66,9 @@ async function main() {
 
   const pdfHash = crypto.createHash('sha256').update(pdfBytes).digest('hex');
 
-  // Skip all the expensive work entirely if the PDF hasn't changed AND
-  // the compute logic itself hasn't changed since the last successful run.
+  // Skip the work only if both the PDF and the compute logic are
+  // unchanged. Checking pdfHash alone would skip forever after a code
+  // change, leaving a stale data.json live.
   let existing = null;
   try {
     existing = JSON.parse(await fs.readFile(OUTPUT_PATH, 'utf8'));
@@ -97,7 +95,9 @@ async function main() {
 
   console.log(`Loaded PDF: ${S.totalPages} pages. Extracting outline...`);
   await extractOutline(S);
-  console.log(`Found ${S.sections.length} outline sections. Calculating end pages...`);
+  console.log(`Found ${S.sections.length} outline sections. Correcting start pages...`);
+  await correctDaySectionStartPages(S);
+  console.log('Calculating end pages...');
   await calculateEndPages(S);
   console.log('Scanning היום יום gray-box page map...');
   await buildHayomYomPageMap(S);
