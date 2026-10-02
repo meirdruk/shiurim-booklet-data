@@ -1,13 +1,6 @@
 #!/usr/bin/env node
 /* ══════════════════════════════════════════════════════════
    scripts/compute.mjs
-
-   Fetches the current weekly PDF, runs it through shared/booklet-logic.js,
-   and writes data.json at the repo root for GitHub Pages to serve.
-
-   pdfjs-dist is pinned to the exact version the browser tool loads
-   (see package.json) — different versions represent PDF internals
-   differently, which silently breaks gray-box detection.
 ══════════════════════════════════════════════════════════ */
 
 import fs from 'node:fs/promises';
