@@ -36,19 +36,10 @@ const {
   synthesizeHayomYomChildren,
 } = await import('../shared/booklet-logic.js');
 
-// IMPORTANT: this is your Worker's default workers.dev URL, NOT the
-// scrape-dm.hamshachos.dev custom domain. Requests to workers.dev never
-// pass through the hamshachos.dev zone's proxy, so its Bot Fight Mode
-// setting doesn't apply here at all — this is a different security
-// boundary, not a bypass of the zone's rules.
-//
-// FILL IN: find this at Cloudflare dashboard → Workers & Pages →
-// scrape-dm → the URL shown on its overview page.
 const REMOTE_URL   = 'https://scrape-dm.meirdruk.workers.dev';
 const OUTPUT_PATH  = path.join(__dirname, '..', 'data.json');
-// Bump this whenever compute.mjs's output shape or algorithm changes —
-// see the skip-check below for why this matters, not just cosmetics.
-const SCHEMA_VERSION = 2;
+// Bump this when making changes
+const SCHEMA_VERSION = 3;
 
 // hayomYomPageMap's values are Sets in-memory (see booklet-logic.js) — not
 // directly JSON-serializable. Convert to sorted plain arrays for output.
@@ -80,11 +71,6 @@ async function main() {
 
   // Skip all the expensive work entirely if the PDF hasn't changed AND
   // the compute logic itself hasn't changed since the last successful run.
-  // Checking pdfHash alone isn't enough — if we edit this script's own
-  // algorithm/output shape but the source PDF stays the same, a hash-only
-  // check would see "unchanged" and skip forever, silently keeping a
-  // stale-format data.json live indefinitely. schemaVersion must be
-  // bumped by hand whenever the algorithm or output shape changes.
   let existing = null;
   try {
     existing = JSON.parse(await fs.readFile(OUTPUT_PATH, 'utf8'));
