@@ -1,8 +1,6 @@
 /* ══════════════════════════════════════════════════════════
    booklet-logic.mjs
 
-****  HI PEOPLE! ... why are you here bichlal??
-
    AMBIENT DEPENDENCY: this module assumes a global `pdfjsLib` exists
    (used by gbGetFilledRects for `pdfjsLib.OPS`). This mirrors how the
    original HTML tool already loads pdf.js as a classic global script
@@ -23,19 +21,14 @@
    Constants
 ══════════════════════════════════════════════════════════ */
 
-// Full day names as they appear in PDF outlines
+
 export const DAY_NAMES_HE = [
   'יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי','יום שישי',
   'שבת','שבת קודש'
 ];
 
-// Variants of חסלת to match across different PDF encodings
 export const CHASLAT_VARIANTS = ['חסלת', 'חַסְלַת', '\u05D7\u05E1\u05DC\u05EA'];
 
-// Parent titles for the day-section splitting rule (replaces the old
-// dollar-sign rule's per-title day-name check). Matched against a
-// section's parentTitle via .includes(), so minor title variations
-// (e.g. trailing punctuation) still match.
 export const KNOWN_DAY_PARENTS = [
   'חומש יומי',
   'תניא יומי',
@@ -43,18 +36,12 @@ export const KNOWN_DAY_PARENTS = [
   'רמב"ם - פרק אחד ליום'
 ];
 
-// Exact marker text identifying a day-section's start-icon gray box, used by
-// the day-section splitting rule. This looks like mis-decoded/garbled text —
-// that is intentional and correct: this is genuinely how the marker decodes
-// when scanning the source PDF's text content. Keep byte-for-byte as-is.
 export const ICON_MARKER = 'â â';
 
 // Padding (pt) for icon-box text matching in the day-section splitting rule.
-// Distinct from GB_PAD (2pt, used by the היום יום engine) — this rule uses a
-// tighter 1pt tolerance, per the original prototype it was ported from.
 export const GB_PAD_ICON = 1;
 
-// Tuning constants — same defaults as the standalone tool
+// Tuning constants
 export const GB_TINT_MIN  = 0.02;
 export const GB_TINT_MAX  = 0.60;
 export const GB_TOLERANCE = 0.06;
@@ -141,10 +128,7 @@ export async function calculateEndPages(S) {
     if (!sec.startPage) continue;
 
     // The raw next-section start page (or totalPages if sec is last),
-    // BEFORE any rule below mutates sec.endPage. This is the window the
-    // day-section splitting rule is allowed to search — it may adopt an
-    // endPage as late as this page (catching legitimate overflow onto the
-    // next section's start page) but no further.
+    // BEFORE any rule below mutates sec.endPage.
     const next = withPage.find(s => s.startPage > sec.startPage);
     const windowEnd = next ? next.startPage : S.totalPages;
 
@@ -160,9 +144,6 @@ export async function calculateEndPages(S) {
         if (split !== null) sec.endPage = split;
       }
     } else if (isKnownDaySection(sec)) {
-      // ── Day-Section Splitting Rule — all other known-day-parent
-      // children (חומש יומי non-Shabbos days, תניא יומי, both Rambam
-      // parents). No chaslat involvement here.
       const split = await daySectionSplittingRule(S, sec, windowEnd);
       if (split !== null) sec.endPage = split;
     }
@@ -181,8 +162,6 @@ export function isKnownDaySection(sec) {
   return KNOWN_DAY_PARENTS.some(name => p.includes(name));
 }
 
-// Extract page text two ways: joined with space AND joined without.
-// Also normalise to NFC so composed/decomposed Hebrew codepoints both match.
 export async function getPageText(S, page1Based) {
   if (page1Based < 1 || page1Based > S.totalPages) return '';
   try {
@@ -201,7 +180,6 @@ export function textHasChaslat(txt) {
 }
 
 export async function chaslatRule(S, sec) {
-  // Scan up to BUFFER pages beyond the default endPage as a safety net
   const BUFFER = 6;
   const scanEnd = Math.min((sec.endPage || sec.startPage) + BUFFER, S.totalPages);
 
@@ -218,28 +196,41 @@ export function normalizeWs(s) {
 
 /* ══════════════════════════════════════════════════════════
    Day-Section Splitting Rule
-   Replaces the old dollar-sign rule. Applies to direct children of
-   KNOWN_DAY_PARENTS (see isKnownDaySection), and — as a fallback only, when
-   chaslat finds nothing — to שבת קודש within חומש יומי (see isShabbosChumash).
-
-   Unlike the old rule (which just checked whether "$" appeared anywhere on
-   the already-assigned endPage), this looks for the section's start-icon
-   gray box on its own start page, and only counts a "$" that appears AFTER
-   that icon (further down the page) as this section's true end-of-section
-   delimiter. If no icon is found on the start page at all, that page is
-   skipped entirely rather than searched — searching without an icon anchor
-   reintroduces exactly the false-positive risk (picking up a "$" left over
-   from a different, unrelated section) this rule exists to eliminate.
-
-   If nothing conclusive is found on the start page, scans forward page by
-   page through windowEnd (the next section's start page, or totalPages if
-   sec is last) for the first bare "$". windowEnd is inclusive, matching the
-   original prototype's cap: a section may legitimately overflow onto the
-   very next section's start page, but no further.
-
-   Returns null if nothing is found anywhere in the window, meaning "no
-   override" — the caller should keep whatever endPage was already assigned.
 ══════════════════════════════════════════════════════════ */
+
+// Horizontal tolerance (pt) when testing whether an item sits within the
+// icon's column.
+export const COLUMN_CONTAINMENT_PAD = 4;
+
+export function isAfterInReadingOrderRTL(itemBox, iconRect) {
+  const itemCenterX = (itemBox.x0 + itemBox.x1) / 2;
+
+  const sameColumn =
+    itemCenterX >= iconRect.x0 - COLUMN_CONTAINMENT_PAD &&
+    itemCenterX <= iconRect.x1 + COLUMN_CONTAINMENT_PAD;
+
+  if (sameColumn) return itemBox.y1 <= iconRect.y0;
+
+  const iconCenterX = (iconRect.x0 + iconRect.x1) / 2;
+  return itemCenterX < iconCenterX;
+}
+
+// Sort boxes into true RTL reading order (first-read first)
+export function sortBoxesReadingOrderRTL(boxes) {
+  return [...boxes].sort((a, b) => {
+    if (isAfterInReadingOrderRTL(a, b)) return 1;   // a comes after b
+    if (isAfterInReadingOrderRTL(b, a)) return -1;  // b comes after a
+    return 0;
+  });
+}
+
+
+export function daySectionsStartingOnPage(S, pageNum) {
+  return S.sections.filter(s =>
+    s.startPage === pageNum && (isKnownDaySection(s) || isShabbosChumash(s))
+  );
+}
+
 export async function daySectionSplittingRule(S, sec, windowEnd) {
   const textBoxesCache = {};
   async function getCachedTextBoxes(pageNum) {
@@ -250,23 +241,54 @@ export async function daySectionSplittingRule(S, sec, windowEnd) {
     return textBoxesCache[pageNum];
   }
 
-  // ── Locate the start-icon box on the section's own start page ──
+  // ── Locate THIS section's start-icon box on its own start page ──
   const startPageObj  = await S.pdfJsDoc.getPage(sec.startPage);
   const startGrayRects = (await gbGetFilledRects(startPageObj)).filter(gbLooksGray);
   const startTextBoxes = await getCachedTextBoxes(sec.startPage);
 
-  const iconRect = startGrayRects.find(r =>
-    normalizeWs(gbBoxText(r, startTextBoxes, GB_PAD_ICON)) === normalizeWs(ICON_MARKER)
+  const allIcons = sortBoxesReadingOrderRTL(
+    startGrayRects.filter(r =>
+      normalizeWs(gbBoxText(r, startTextBoxes, GB_PAD_ICON)) === normalizeWs(ICON_MARKER)
+    )
   );
 
-  if (iconRect) {
-    // A "$" counts only if it sits below the icon box (PDF y-axis is
-    // bottom-up, so "below" = smaller y) — this excludes a "$" belonging to
-    // an earlier, unrelated section that happens to land on the same page.
-    const dollarBelowIcon = startTextBoxes.find(t =>
-      t.text.trim() === '$' && t.y1 <= iconRect.y0
+  // Pair this section to its own icon positionally: the Nth day-section
+  // starting on this page (document order) takes the Nth icon (RTL
+  // reading order). With the usual one-section-one-icon page this is just
+  // allIcons[0], identical to the previous behavior.
+  const siblings = daySectionsStartingOnPage(S, sec.startPage);
+  const myIndex  = siblings.findIndex(s => s.id === sec.id);
+
+  let iconRect;
+  if (allIcons.length === siblings.length && myIndex >= 0) {
+    // Counts line up — positional pairing is trustworthy.
+    iconRect = allIcons[myIndex];
+  } else if (siblings.length <= 1) {
+    // Only one day-section starts here, so there's nothing to
+    // disambiguate; take the first icon in reading order even if the page
+    // happens to carry extra icons that aren't bookmarked sections.
+    iconRect = allIcons[0];
+  } else {
+    // Several sections start here but the icon count doesn't match —
+    // pairing is ambiguous. Best-effort by index, and say so, since a
+    // silent wrong answer here is exactly the failure mode this pairing
+    // exists to prevent.
+    console.warn(
+      `[daySectionSplittingRule] page ${sec.startPage}: ${siblings.length} day-sections ` +
+      `but ${allIcons.length} icons — positional pairing may be unreliable for "${sec.title}".`
     );
-    if (dollarBelowIcon) return sec.startPage;
+    iconRect = myIndex >= 0 ? allIcons[myIndex] : undefined;
+  }
+
+  if (iconRect) {
+    // A "$" counts only if it comes after the icon in true RTL reading
+    // order (see isAfterInReadingOrderRTL) — this excludes a "$" left
+    // over from a different, unrelated (and, on a two-column page,
+    // possibly already-finished) section landing on the same page.
+    const dollarAfterIcon = startTextBoxes.find(t =>
+      t.text.trim() === '$' && isAfterInReadingOrderRTL(t, iconRect)
+    );
+    if (dollarAfterIcon) return sec.startPage;
   }
   // No icon on the start page (or icon found but no qualifying "$" below
   // it) — do not search this page any further; fall through to scanning
@@ -282,9 +304,7 @@ export async function daySectionSplittingRule(S, sec, windowEnd) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   Gray-Box Engine  (ported from the standalone extractor)
-   Used for both היום יום section splitting and the day-section
-   splitting rule's icon detection.
+   Gray-Box Engine
 ══════════════════════════════════════════════════════════ */
 export async function gbGetFilledRects(page) {
   const opList = await page.getOperatorList();
@@ -387,9 +407,7 @@ export function gbLooksGray(rect) {
   return apparent >= GB_TINT_MIN && apparent <= GB_TINT_MAX;
 }
 
-// Extract text found inside a gray rect on a given page (using already-fetched text boxes).
-// pad defaults to GB_PAD (existing היום יום behavior, unaffected); callers may
-// override it — e.g. the day-section splitting rule uses GB_PAD_ICON.
+// Extract text found inside a gray rect on a given page
 export function gbBoxText(rect, textBoxes, pad = GB_PAD) {
   return textBoxes
     .filter(t => gbBoxInside(t, rect, pad))
@@ -415,10 +433,7 @@ export function matchDayNameInText(text) {
 export async function buildHayomYomPageMap(S) {
   S.hayomYomPageMap = {};
 
-  // Tiny local lookup — intentionally not shared with the HTML tool's own
-  // (UI-facing) findSectionByTitle. It's a two-line pure function; keeping
-  // this module free of any dependency on HTML-side helper functions is
-  // worth the trivial duplication.
+
   const hayomYom = S.sections.find(s => s.title === 'היום יום' || s.title.includes('היום יום'));
   if (!hayomYom || !hayomYom.startPage) return;
 
@@ -488,34 +503,6 @@ export async function buildHayomYomPageMap(S) {
 
 /* ══════════════════════════════════════════════════════════
    Synthesize per-day child sections under היום יום
-
-   The source PDF's own bookmarks never split היום יום by day — that
-   split only ever comes from the gray-box day-page scan
-   (buildHayomYomPageMap). This turns that scan's result into real child
-   sections in S.sections, so the Advanced tab can select an individual
-   day the same way it can for any other section — using the SAME
-   accurate, page-map-derived ranges the Basic tab already relies on —
-   instead of either having no such nodes at all, or (if some future
-   version of the source PDF ever adds its own bookmarks here) potentially
-   inaccurate bookmark-derived ranges for those days.
-
-   Any pre-existing children of היום יום — whether none, real bookmark
-   children from the PDF, or a leftover synthesis from an earlier run —
-   are replaced entirely. The page map is treated as the sole source of
-   truth for this specific section; a bookmark-derived range for a day
-   would have no way to know the correct boundary the way the gray-box
-   scan does.
-
-   MUST run AFTER both calculateEndPages() and buildHayomYomPageMap():
-   it needs the finished page map, and the synthetic entries it creates
-   must not be reprocessed by the generic end-page rules (they're not
-   children of any KNOWN_DAY_PARENTS name, so they wouldn't be, but this
-   ordering also just avoids doing the work before the data exists).
-
-   Each day's pages are assumed contiguous (start = min page, end = max
-   page) — true by construction, since buildHayomYomPageMap assigns every
-   page in its scanned range to exactly one day, in page order, so a
-   single day's pages can't have a gap in normal operation.
 ══════════════════════════════════════════════════════════ */
 export function synthesizeHayomYomChildren(S) {
   const hayomYom = S.sections.find(s => s.title === 'היום יום' || s.title.includes('היום יום'));
