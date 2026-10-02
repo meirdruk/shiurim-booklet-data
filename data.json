@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 4,
   "pdfHash": "ff6e34e646b063973605b59e4bbe12c6a81ad55ec4ea5e65959ca6328b7f7d22",
-  "computedAt": "2026-09-27T08:44:15.152Z",
+  "computedAt": "2026-10-02T06:15:37.450Z",
   "totalPages": 264,
   "sections": [
     {
@@ -243,7 +243,7 @@
     {
       "id": 20,
       "title": "שבת קודש",
-      "startPage": 88,
+      "startPage": 87,
       "endPage": 90,
       "level": 1,
       "parentId": 13,
@@ -476,7 +476,7 @@
     {
       "id": 46,
       "title": "רמב\"ם - פרק אחד ליום",
-      "startPage": 164,
+      "startPage": 163,
       "endPage": 165,
       "level": 0,
       "parentId": null,
@@ -495,7 +495,7 @@
     {
       "id": 47,
       "title": "יום ראשון",
-      "startPage": 164,
+      "startPage": 163,
       "endPage": 166,
       "level": 1,
       "parentId": 46,
@@ -540,7 +540,7 @@
       "id": 51,
       "title": "יום חמישי",
       "startPage": 179,
-      "endPage": 179,
+      "endPage": 184,
       "level": 1,
       "parentId": 46,
       "parentTitle": "רמב\"ם - פרק אחד ליום",
