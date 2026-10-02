@@ -1,34 +1,30 @@
 /* ══════════════════════════════════════════════════════════
-   booklet-logic.mjs
+   booklet-logic.js
 
-   AMBIENT DEPENDENCY: this module assumes a global `pdfjsLib` exists
-   (used by gbGetFilledRects for `pdfjsLib.OPS`). This mirrors how the
-   original HTML tool already loads pdf.js as a classic global script
-   (not an ES module), so it's kept as-is here to avoid restructuring
-   how pdf.js itself is loaded:
-     - In the browser: already true, via the existing
-       <script src="cdnjs.../pdf.min.js"> tag.
-     - In Node (the compute script): set it explicitly before calling
-       into this module, e.g.:
-         globalThis.pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+   Shared PDF-analysis logic, used by both the browser tool and the
+   scheduled compute script so the two can't diverge.
 
-   The `S` object passed into these functions is expected to have (at
-   minimum) the same shape as the browser tool's state object:
-     { pdfJsDoc, totalPages, sections, hayomYomPageMap }
+   Requires a global `pdfjsLib` (used for pdfjsLib.OPS). In the browser
+   that's the existing <script> tag; in Node, set it before importing.
+
+   `S` is the state object: { pdfJsDoc, totalPages, sections, hayomYomPageMap }
 ══════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════
    Constants
 ══════════════════════════════════════════════════════════ */
 
-
+// Full day names as they appear in PDF outlines
 export const DAY_NAMES_HE = [
   'יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי','יום שישי',
   'שבת','שבת קודש'
 ];
 
+// Variants of חסלת to match across different PDF encodings
 export const CHASLAT_VARIANTS = ['חסלת', 'חַסְלַת', '\u05D7\u05E1\u05DC\u05EA'];
 
+// Parent titles the day-section splitting rule applies to.
+// Matched against parentTitle via .includes().
 export const KNOWN_DAY_PARENTS = [
   'חומש יומי',
   'תניא יומי',
@@ -36,12 +32,15 @@ export const KNOWN_DAY_PARENTS = [
   'רמב"ם - פרק אחד ליום'
 ];
 
+// Text of a day-section's start-icon gray box. The garbled look is
+// correct — that's how the marker decodes from the source PDF.
 export const ICON_MARKER = 'â â';
 
-// Padding (pt) for icon-box text matching in the day-section splitting rule.
+// Padding (pt) for icon-box text matching. Tighter than GB_PAD,
+// which the היום יום engine uses.
 export const GB_PAD_ICON = 1;
 
-// Tuning constants
+// Tuning constants — same defaults as the standalone tool
 export const GB_TINT_MIN  = 0.02;
 export const GB_TINT_MAX  = 0.60;
 export const GB_TOLERANCE = 0.06;
@@ -127,8 +126,8 @@ export async function calculateEndPages(S) {
   for (const sec of S.sections) {
     if (!sec.startPage) continue;
 
-    // The raw next-section start page (or totalPages if sec is last),
-    // BEFORE any rule below mutates sec.endPage.
+    // Next section's start page, before any rule below mutates endPage.
+    // This is the window the splitting rule may search (inclusive).
     const next = withPage.find(s => s.startPage > sec.startPage);
     const windowEnd = next ? next.startPage : S.totalPages;
 
@@ -138,12 +137,12 @@ export async function calculateEndPages(S) {
       if (chaslatEnd !== null) {
         sec.endPage = chaslatEnd;
       } else {
-        // Chaslat found nothing within its buffer — fall back to the
-        // day-section splitting rule instead of leaving the plain default.
+        // Chaslat found nothing — fall back to the splitting rule.
         const split = await daySectionSplittingRule(S, sec, windowEnd);
         if (split !== null) sec.endPage = split;
       }
     } else if (isKnownDaySection(sec)) {
+      // ── Day-Section Splitting Rule — all other day-parent children ──
       const split = await daySectionSplittingRule(S, sec, windowEnd);
       if (split !== null) sec.endPage = split;
     }
@@ -162,6 +161,8 @@ export function isKnownDaySection(sec) {
   return KNOWN_DAY_PARENTS.some(name => p.includes(name));
 }
 
+// Extract page text two ways: joined with space AND joined without.
+// Also normalise to NFC so composed/decomposed Hebrew codepoints both match.
 export async function getPageText(S, page1Based) {
   if (page1Based < 1 || page1Based > S.totalPages) return '';
   try {
@@ -180,6 +181,7 @@ export function textHasChaslat(txt) {
 }
 
 export async function chaslatRule(S, sec) {
+  // Scan up to BUFFER pages beyond the default endPage as a safety net
   const BUFFER = 6;
   const scanEnd = Math.min((sec.endPage || sec.startPage) + BUFFER, S.totalPages);
 
@@ -196,12 +198,24 @@ export function normalizeWs(s) {
 
 /* ══════════════════════════════════════════════════════════
    Day-Section Splitting Rule
+
+   Finds a section's start-icon on its start page and takes the first
+   "$" that follows it in reading order as the section's end. If none
+   is found there, scans forward to windowEnd (inclusive). Returns null
+   when nothing is found, meaning "keep the existing endPage".
 ══════════════════════════════════════════════════════════ */
 
-// Horizontal tolerance (pt) when testing whether an item sits within the
-// icon's column.
+// Horizontal tolerance (pt) when testing column membership.
 export const COLUMN_CONTAINMENT_PAD = 4;
 
+/*
+   Is itemBox after iconRect in reading order?
+
+   The start-icon is a bar spanning its column's full width, so its
+   x-span defines the column. Same column → compare y (PDF y-axis is
+   bottom-up). Different column → RTL: the right column is read in full
+   before the left, so an item is "after" only if it's to the icon's left.
+*/
 export function isAfterInReadingOrderRTL(itemBox, iconRect) {
   const itemCenterX = (itemBox.x0 + itemBox.x1) / 2;
 
@@ -215,7 +229,8 @@ export function isAfterInReadingOrderRTL(itemBox, iconRect) {
   return itemCenterX < iconCenterX;
 }
 
-// Sort boxes into true RTL reading order (first-read first)
+// Sort boxes into RTL reading order (first-read first). Needed because
+// pdf.js returns rects in drawing order, not visual order.
 export function sortBoxesReadingOrderRTL(boxes) {
   return [...boxes].sort((a, b) => {
     if (isAfterInReadingOrderRTL(a, b)) return 1;   // a comes after b
@@ -224,11 +239,97 @@ export function sortBoxesReadingOrderRTL(boxes) {
   });
 }
 
-
+// Day-sections starting on a given page, in document order. Used to pair
+// each section with its own icon when several share a start page.
+// Shabbos-Chumash sections count too: they still occupy an icon slot.
 export function daySectionsStartingOnPage(S, pageNum) {
   return S.sections.filter(s =>
     s.startPage === pageNum && (isKnownDaySection(s) || isShabbosChumash(s))
   );
+}
+
+/* ══════════════════════════════════════════════════════════
+   Correct day-section start pages against their actual start-icons
+
+   The publisher sometimes anchors a bookmark to the top of the NEXT
+   page instead of the section's real mid-page start, which would drop
+   the opening content. A section is moved back one page only when its
+   bookmarked page has fewer start-icons than sections claiming it, and
+   the previous page has a spare unclaimed icon.
+
+   Runs after extractOutline() and before calculateEndPages().
+══════════════════════════════════════════════════════════ */
+export async function countStartIconsOnPage(S, pageNum) {
+  if (pageNum < 1 || pageNum > S.totalPages) return 0;
+  const page = await S.pdfJsDoc.getPage(pageNum);
+  const grayRects = (await gbGetFilledRects(page)).filter(gbLooksGray);
+  if (!grayRects.length) return 0;
+  const textBoxes = await gbGetTextBoxes(page);
+  return grayRects.filter(r =>
+    normalizeWs(gbBoxText(r, textBoxes, GB_PAD_ICON)) === normalizeWs(ICON_MARKER)
+  ).length;
+}
+
+export async function correctDaySectionStartPages(S) {
+  const daySections = S.sections.filter(s =>
+    s.startPage !== null && (isKnownDaySection(s) || isShabbosChumash(s))
+  );
+  if (!daySections.length) return;
+
+  // Icon counts for every claimed page and the page before it.
+  const pagesOfInterest = new Set();
+  for (const s of daySections) {
+    pagesOfInterest.add(s.startPage);
+    if (s.startPage > 1) pagesOfInterest.add(s.startPage - 1);
+  }
+  const iconCount = new Map();
+  for (const p of [...pagesOfInterest].sort((a, b) => a - b)) {
+    iconCount.set(p, await countStartIconsOnPage(S, p));
+  }
+
+  // How many day-sections currently claim each page.
+  const claims = new Map();
+  for (const s of daySections) {
+    claims.set(s.startPage, (claims.get(s.startPage) || 0) + 1);
+  }
+
+  const claimedPages = [...claims.keys()].sort((a, b) => a - b);
+
+  for (const page of claimedPages) {
+    const deficit = (claims.get(page) || 0) - (iconCount.get(page) || 0);
+    if (deficit <= 0) continue;              // every section here has an icon
+
+    const prev = page - 1;
+    if (prev < 1) continue;
+    const spare = (iconCount.get(prev) || 0) - (claims.get(prev) || 0);
+    if (spare <= 0) continue;                // nothing unclaimed to move back to
+
+    // Move the earliest sections lacking an icon (document order
+    // follows reading order).
+    const movable = daySections
+      .filter(s => s.startPage === page)
+      .sort((a, b) => a.id - b.id)
+      .slice(0, Math.min(deficit, spare));
+
+    for (const sec of movable) {
+      const parent = S.sections.find(p2 => p2.id === sec.parentId);
+      console.log(
+        `[correctDaySectionStartPages] "${sec.title}" (${sec.parentTitle ?? '—'}): ` +
+        `bookmarked p${sec.startPage}, start-icon found on p${prev} — correcting.`
+      );
+      sec.startPage = prev;
+      claims.set(page, claims.get(page) - 1);
+      claims.set(prev, (claims.get(prev) || 0) + 1);
+
+      // Keep the tree coherent: a parent must not start after its child.
+      if (parent && parent.startPage === page) {
+        console.log(
+          `[correctDaySectionStartPages]   also moving parent "${parent.title}" p${page} → p${prev}`
+        );
+        parent.startPage = prev;
+      }
+    }
+  }
 }
 
 export async function daySectionSplittingRule(S, sec, windowEnd) {
@@ -252,27 +353,18 @@ export async function daySectionSplittingRule(S, sec, windowEnd) {
     )
   );
 
-  // Pair this section to its own icon positionally: the Nth day-section
-  // starting on this page (document order) takes the Nth icon (RTL
-  // reading order). With the usual one-section-one-icon page this is just
-  // allIcons[0], identical to the previous behavior.
+  // The Nth day-section starting on this page takes the Nth icon.
   const siblings = daySectionsStartingOnPage(S, sec.startPage);
   const myIndex  = siblings.findIndex(s => s.id === sec.id);
 
   let iconRect;
   if (allIcons.length === siblings.length && myIndex >= 0) {
-    // Counts line up — positional pairing is trustworthy.
     iconRect = allIcons[myIndex];
   } else if (siblings.length <= 1) {
-    // Only one day-section starts here, so there's nothing to
-    // disambiguate; take the first icon in reading order even if the page
-    // happens to carry extra icons that aren't bookmarked sections.
+    // Nothing to disambiguate — take the first icon in reading order.
     iconRect = allIcons[0];
   } else {
-    // Several sections start here but the icon count doesn't match —
-    // pairing is ambiguous. Best-effort by index, and say so, since a
-    // silent wrong answer here is exactly the failure mode this pairing
-    // exists to prevent.
+    // Counts don't match, so pairing is ambiguous. Best-effort, but warn.
     console.warn(
       `[daySectionSplittingRule] page ${sec.startPage}: ${siblings.length} day-sections ` +
       `but ${allIcons.length} icons — positional pairing may be unreliable for "${sec.title}".`
@@ -281,18 +373,15 @@ export async function daySectionSplittingRule(S, sec, windowEnd) {
   }
 
   if (iconRect) {
-    // A "$" counts only if it comes after the icon in true RTL reading
-    // order (see isAfterInReadingOrderRTL) — this excludes a "$" left
-    // over from a different, unrelated (and, on a two-column page,
-    // possibly already-finished) section landing on the same page.
+    // Only a "$" after the icon in reading order counts — this excludes
+    // one left over from a different section on the same page.
     const dollarAfterIcon = startTextBoxes.find(t =>
       t.text.trim() === '$' && isAfterInReadingOrderRTL(t, iconRect)
     );
     if (dollarAfterIcon) return sec.startPage;
   }
-  // No icon on the start page (or icon found but no qualifying "$" below
-  // it) — do not search this page any further; fall through to scanning
-  // subsequent pages instead.
+  // No icon, or no qualifying "$" after it — don't search this page
+  // further; searching without an icon anchor risks false positives.
 
   // ── Scan forward through the rest of the window for the first bare "$" ──
   for (let p = sec.startPage + 1; p <= windowEnd; p++) {
@@ -304,7 +393,9 @@ export async function daySectionSplittingRule(S, sec, windowEnd) {
 }
 
 /* ══════════════════════════════════════════════════════════
-   Gray-Box Engine
+   Gray-Box Engine  (ported from the standalone extractor)
+   Used for both היום יום section splitting and the day-section
+   splitting rule's icon detection.
 ══════════════════════════════════════════════════════════ */
 export async function gbGetFilledRects(page) {
   const opList = await page.getOperatorList();
@@ -407,7 +498,8 @@ export function gbLooksGray(rect) {
   return apparent >= GB_TINT_MIN && apparent <= GB_TINT_MAX;
 }
 
-// Extract text found inside a gray rect on a given page
+// Text inside a gray rect. pad defaults to GB_PAD; the splitting rule
+// passes GB_PAD_ICON.
 export function gbBoxText(rect, textBoxes, pad = GB_PAD) {
   return textBoxes
     .filter(t => gbBoxInside(t, rect, pad))
@@ -433,16 +525,14 @@ export function matchDayNameInText(text) {
 export async function buildHayomYomPageMap(S) {
   S.hayomYomPageMap = {};
 
-
   const hayomYom = S.sections.find(s => s.title === 'היום יום' || s.title.includes('היום יום'));
   if (!hayomYom || !hayomYom.startPage) return;
 
   const rangeStart = hayomYom.startPage;
 
   // ── True end: next section at the SAME OR HIGHER level ──────────────
-  // calculateEndPages() sets the parent's endPage to firstChild.startPage-1
-  // (almost the same as startPage) because all children are in the sorted list.
-  // Skip children and find the next real sibling/uncle instead.
+  // The parent's own endPage is useless here (it stops at its first
+  // child), so skip children and find the next sibling/uncle instead.
   const trueEnd = (() => {
     const candidates = S.sections
       .filter(s =>
@@ -503,6 +593,13 @@ export async function buildHayomYomPageMap(S) {
 
 /* ══════════════════════════════════════════════════════════
    Synthesize per-day child sections under היום יום
+
+   The PDF's bookmarks never split היום יום by day — that only comes
+   from the gray-box page scan. This turns that scan into real child
+   sections so both tabs can select a single day through the same
+   mechanism as any other section. Any existing children are replaced.
+
+   Runs after calculateEndPages() and buildHayomYomPageMap().
 ══════════════════════════════════════════════════════════ */
 export function synthesizeHayomYomChildren(S) {
   const hayomYom = S.sections.find(s => s.title === 'היום יום' || s.title.includes('היום יום'));
@@ -520,7 +617,7 @@ export function synthesizeHayomYomChildren(S) {
       return { title, startPage: sorted[0], endPage: sorted[sorted.length - 1] };
     })
     .filter(e => e.startPage !== undefined)
-    .sort((a, b) => a.startPage - b.startPage); // document order, not weekday order
+    .sort((a, b) => a.startPage - b.startPage); // page order
 
   for (const entry of dayEntries) {
     const child = {
